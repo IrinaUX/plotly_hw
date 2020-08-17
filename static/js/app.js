@@ -34,7 +34,14 @@ function init() {
       var layout = {
         title: "Test subject ID 940 - Top 10 Bacteria",
         xaxis: { title: "Sample values" },
-        yaxis: text_labels
+        yaxis: text_labels,
+        width: 600,
+        margin: {
+          l: 250,
+          r: 50,
+          b: 100,
+          t: 100,
+          pad: 10}
         // yaxis: { title: otu_labels}
       };
 
