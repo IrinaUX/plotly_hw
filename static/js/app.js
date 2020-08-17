@@ -10,29 +10,7 @@ function init() {
       const otu_ids = `OTU IDS: ${sample940.otu_ids}`;
       const otu_labels = `OTU labels: ${sample940.otu_labels}`;
       const text_labels = ["1167: Porphyromonas", "2859: Peptoniphilus","482: Bacteria","2264: IncertaeSedisXI","41: Bacteria","1189: Porphyromonas","352: Bacteria","189: Bacteria","2318: Anaerococcus","1977: Clostridiales"]
-      // // add demographics info:
-      // var demographics940 = data.metadata[0];
-      // const ethnicity940 = demographics940.ethnicity;
-      // const gender940 = demographics940.gender;
-      // const age940 = demographics940.age;
-      // const loc940 = demographics940.location;
-      // const bbtype940 = demographics940.bbtype;
-      // const wfreq40 = demographics940.wfreq;
-      // console.log(demographics940);
-      // console.log(ethnicity940);
-      // console.log(gender940);
-      // console.log(age940);
-      // console.log(loc940);
-      // console.log(bbtype940);
-      // console.log(wfreq40);
-      // const metadata = d3.select("#sample-metadata");
-      // metadata.property("value", `Ethnicity: ${ethnicity940}`)
-
       
-      // console.log(title);
-      // console.log(otu_ids);
-      // console.log(otu_labels);
-
       const trace = {
         x: sample_values.slice(0, 10), //data.samples[0].sample_values, //.map(val => Math.sqrt(val)),
         // y: otu_labels.slice(0, 10),
@@ -64,8 +42,8 @@ function init() {
       // Render the plot to the `plot1` div
       Plotly.newPlot("plot", data, layout);
       })
-      
-    
+  demographics940();
+  buildSelDatasetList();
 };
 
 function demographics940(data) {
@@ -81,5 +59,22 @@ function demographics940(data) {
   }
 )};
 
+function buildSelDatasetList() {
+  // Use the list of sample names to populate the select options
+  d3.json("samples.json").then((data) => {
+    const id_list = data.samples;
+    var selector = d3.select("#selDataset");
+    console.log(id_list);
+    id_list.forEach((id_list) => {
+      // const id_list = data.samples;
+      selector
+        .append("option")
+        .text(`ID: ${id_list.id}`)
+        .property("value", id_list.id);
+        console.log(id_list.id);
+    });
+  });
+};
+
 init();
-demographics940();
+buildSelDatasetList();
