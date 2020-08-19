@@ -1,7 +1,45 @@
 console.log("Hello");
-function init() {
-  // Grab a reference to the dropdown select element
-  // Use the list of sample names to populate the select options
+
+function buildDropDownSelection() { 
+  // const id_list = data.samples;
+  var selector = d3.select("#selDataset");
+    d3.json("samples.json").then((data) => {
+    const names = data.names;
+    names.forEach((item) => {
+      selector
+        .append("option")
+        .text(item)
+        .property("value", item.id);
+    });
+    // return sample;
+    const namesDefault = names[0];
+    buildMetadata(namesDefault); 
+  });
+};
+
+function buildMetadata(sample) {
+  const demoPanel = d3.select("#sample-metadata");
+  d3.json("samples.json").then((data) => {
+    var metadata = data.metadata;
+    console.log(metadata);
+    var sampleMetaData = metadata.filter(item => item.id == sample);
+    const sampleData = sampleMetaData[0];
+    console.log(sampleData);
+    demoPanel.html("");
+    Object.entries(sampleData).forEach(([key, value]) => {
+      demoPanel
+        .append("p")
+        .text(`${key}: ${value}`);
+    })
+    
+
+    // console.log(metadata[0].id === sample);
+//    var sampleMeta = 
+
+  });
+};
+
+function buildGraph940() {
   d3.json("samples.json").then(data => {
       var sample940 = data.samples[0];
       console.log(sample940);
@@ -39,7 +77,6 @@ function init() {
         // yaxis: { title: otu_labels}
       };
 
-      // Render the plot to the `plot1` div
       Plotly.newPlot("plot", data, layout);
       })
   demographics940();
@@ -48,33 +85,31 @@ function init() {
 
 function demographics940(data) {
   // Use `d3.json` to fetch the metadata for 940 sample
+  const selector = d3.select("#selDataset");
   d3.json("samples.json").then((data) => {
-    var sample940 = data.metadata[0];
+    
+    var names = data.names;
+    names.forEach((item) => {
+      selector
+      .append("option")
+        .text(`${item.id}`)
+        .property("value", item.id);
+    })
+    // for each of names - get selector - pass the selector ID
+
     // Use d3 to select the panel with id of `#sample-metadata`
     var sample_metadata = d3.select("#sample-metadata");
     Object.entries(sample940).forEach(([key, value]) => {
       var row = sample_metadata.append("p");
       row.text(`${key}: ${value}`);
     });
-  }
-)};
+  })};
 
-function buildSelDatasetList() {
-  // Use the list of sample names to populate the select options
-  d3.json("samples.json").then((data) => {
-    const id_list = data.samples;
-    var selector = d3.select("#selDataset");
-    console.log(id_list);
-    id_list.forEach((id_list) => {
-      // const id_list = data.samples;
-      selector
-        .append("option")
-        .text(`ID: ${id_list.id}`)
-        .property("value", id_list.id);
-        console.log(id_list.id);
-    });
-  });
-};
 
-init();
-buildSelDatasetList();
+function optionChanged(sample) {
+  // const options = jsonData.dataset.description;
+  buildMetadata(sample);
+}
+buildDropDownSelection();
+// buildDropDownSelection();
+// buildMetadata();
