@@ -4,41 +4,32 @@ function init() {
   // const id_list = data.samples;
   var selector = d3.select("#selDataset");
     d3.json("samples.json").then((data) => {
-    const names = data.names;
-    names.forEach((item) => {
-      selector
-        .append("option")
-        .text(item)
-        .property("value", item.id);
-    });
+      const names = data.names;
+      const samples = data.samples;
+      names.forEach((item) => {
+        selector
+          .append("option")
+          .text(item)
+          .property("value", item.id);
+      });
     // return sample;
-    const namesDefault = names[0];
-    buildMetadata(namesDefault); 
-  });
-};
-
-function buildMetadata(sample) {
-  const demoPanel = d3.select("#sample-metadata");
-  d3.json("samples.json").then((data) => {
-    var metadata = data.metadata;
-    console.log(metadata);
-    var sampleMetaData = metadata.filter(item => item.id == sample);
-    const sampleData = sampleMetaData[0];
-    console.log(sampleData);
-    demoPanel.html("");
-    Object.entries(sampleData).forEach(([key, value]) => {
-      demoPanel
-        .append("p")
-        .text(`${key}: ${value}`);
-    })
+    const default_names = names[0];
+    const default_sample_values = samples[0].sample_values;
+    const default_sample_otu_ids = samples[0].otu_ids;
+    const default_sample_otu_labels = samples[0].otu_labels;
+    let default_sample = [];
+    default_sample.push(default_sample_values, default_sample_otu_ids, default_sample_otu_labels);
+    console.log(default_sample[2].slice(-1));
+    buildMetadata(default_names); 
+    buildGraph(default_sample);
   });
 };
 
 function buildGraph(sample) {
-  const graphPane = d3.select("#plot");
+  const graphPanel = d3.select("#plot");
   d3.json("samples.json").then(data => {
-      var sampleData = data.samples[0];
-      // console.log(sample940);
+      const sampleData = data.samples;
+      // console.log(sampleData);
       // const title = `Sample id - ${sample940.id}`;
       // const sample_values = sample940.sample_values;
       // const otu_ids = `OTU IDS: ${sample940.otu_ids}`;
@@ -69,8 +60,21 @@ function buildGraph(sample) {
 
       // Plotly.newPlot("plot", data, layout);
       })
-  demographics940();
-  buildSelDatasetList();
+};
+
+function buildMetadata(sample) {
+  const demoPanel = d3.select("#sample-metadata");
+  d3.json("samples.json").then((data) => {
+    const metadata = data.metadata;
+    var sampleMetaData = metadata.filter(item => item.id == sample);
+    const sampleData = sampleMetaData[0];
+    demoPanel.html("");
+    Object.entries(sampleData).forEach(([key, value]) => {
+      demoPanel
+        .append("p")
+        .text(`${key}: ${value}`);
+    })
+  });
 };
 
 function optionChanged(sample) {
