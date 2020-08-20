@@ -5,61 +5,16 @@ function init() {
   var selector = d3.select("#selDataset");
     d3.json("samples.json").then((data) => {
       const names = data.names;
-      const samples = data.samples;
       names.forEach((item) => {
         selector
           .append("option")
           .text(item)
           .property("value", item.id);
       });
-    // return sample;
     const default_names = names[0];
-    const default_sample_values = samples[0].sample_values;
-    const default_sample_otu_ids = samples[0].otu_ids;
-    const default_sample_otu_labels = samples[0].otu_labels;
-    let default_sample = [];
-    default_sample.push(default_sample_values, default_sample_otu_ids, default_sample_otu_labels);
-    console.log(default_sample[2].slice(-1));
     buildMetadata(default_names); 
-    buildGraph(default_sample);
+    buildGraph(default_names);
   });
-};
-
-function buildGraph(sample) {
-  const graphPanel = d3.select("#plot");
-  d3.json("samples.json").then(data => {
-      const sampleData = data.samples;
-      // console.log(sampleData);
-      // const title = `Sample id - ${sample940.id}`;
-      // const sample_values = sample940.sample_values;
-      // const otu_ids = `OTU IDS: ${sample940.otu_ids}`;
-      // const otu_labels = `OTU labels: ${sample940.otu_labels}`;
-      // const text_labels = ["1167: Porphyromonas", "2859: Peptoniphilus","482: Bacteria","2264: IncertaeSedisXI","41: Bacteria","1189: Porphyromonas","352: Bacteria","189: Bacteria","2318: Anaerococcus","1977: Clostridiales"]
-      
-      // const trace = {
-      //   x: sample_values.slice(0, 10), //data.samples[0].sample_values, //.map(val => Math.sqrt(val)),
-      //   y: text_labels,
-
-      //   type: 'bar',
-      //   orientation: 'h',
-      //   title: title,
-      // };
-      // var data = [trace];
-      // var layout = {
-      //   title: "Test subject ID 940 - Top 10 Bacteria",
-      //   xaxis: { title: "Sample values" },
-      //   yaxis: text_labels,
-      //   width: 600,
-      //   margin: {
-      //     l: 250,
-      //     r: 50,
-      //     b: 100,
-      //     t: 100,
-      //     pad: 10}
-      // };
-
-      // Plotly.newPlot("plot", data, layout);
-      })
 };
 
 function buildMetadata(sample) {
@@ -77,8 +32,82 @@ function buildMetadata(sample) {
   });
 };
 
+function buildGraph(sample) {
+  d3.json("samples.json").then(data => {
+    const names = data.names;
+    const samples = data.samples;
+    const sample_data = samples.filter(item => item.id == sample);
+    // console.log(data);
+    // console.log(sample_data);
+    const sample_id = sample_data[0].id;
+    const sample_values = sample_data[0].sample_values;
+    const sample_otu_ids = sample_data[0].otu_ids;
+    const sample_otu_labels = sample_data[0].otu_labels;
+    // console.log(`Sample id type: ${typeof(sample_id)}:`);
+    // console.log(sample_id);
+    // console.log(`Sample values type: ${typeof(sample_values)}:`);
+    // console.log(sample_values);
+    // console.log(`Sample otu ids type: ${typeof(sample_otu_ids)}:`);
+    // console.log(sample_otu_ids);
+    // console.log(`Sample otu labels: ${typeof(sample_otu_labels)}:`);
+    console.log(sample_otu_labels)
+    console.log(sample_otu_labels.length);
+    const newObjList = [];
+    for (var i=0; i < sample_otu_labels.length; i++) {
+      // console.log(sample_otu_labels[i]);
+      // console.log(typeof(sample_otu_labels[i]));
+      // console.log("------");
+      const string_label = sample_otu_labels[i];
+      // console.log(string_label);
+      // console.log("------");
+      const split_label_string = string_label.split(";");
+      // console.log(split_label_string);
+      // console.log(typeof(split_label_string));
+      // console.log(split_label_string.slice(0));
+      const sliced_string = split_label_string.slice(-1);
+      console.log(typeof(sliced_string));
+      console.log(sliced_string);
+      console.log("------");
+      newObjList.push(sliced_string);
+
+    }
+    console.log("~~~~~~~~~~~~~~~~~~");
+    console.log(typeof(newObjList));
+    console.log(newObjList.length);
+    console.log(newObjList);
+
+    var mergedLabels = [].concat.apply([], newObjList);
+    console.log(mergedLabels);
+    
+    const title = `Sample id - ${sample_id}`;
+    const trace = {
+      x: sample_values.slice(0, 10), //data.samples[0].sample_values, //.map(val => Math.sqrt(val)),
+      y: sample_otu_ids.slice(0, 10),
+      type: 'bar',
+      orientation: 'h',
+      title: title,
+    };
+    var data = [trace];
+    var layout = {
+      title: title,
+      xaxis: { title: "Sample values" },
+      yaxis: sample_otu_ids,
+      width: 600,
+      margin: {
+        l: 250,
+        r: 50,
+        b: 100,
+        t: 100,
+        pad: 10}
+    };
+
+    Plotly.newPlot("plot", data, layout);
+  })
+};
+
 function optionChanged(sample) {
   buildMetadata(sample);
+  buildGraph(sample);
 }
 
 init();
