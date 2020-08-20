@@ -13,6 +13,7 @@ function init() {
     console.log("--- Initialized ---");
     buildMetadata(default_names); 
     buildGraph(default_names);
+    buildGraph_AllSamples();
   });
 };
 
@@ -50,9 +51,7 @@ function buildGraph(sample) {
       const sliced_string = split_label_string.slice(-1);
       newObjList.push(sliced_string);
     }
-    
     let mergedGenus = [].concat.apply([], newObjList);
-    
     merged_ids_genus = [];
     Object.values(sample_otu_ids).forEach((item, i) => {
       let item_ids = item;
@@ -60,15 +59,14 @@ function buildGraph(sample) {
       let merged_item = `${item_ids}: ${item_genus}`;
       merged_ids_genus.push(merged_item);
     });
-    
     const title = `Sample id - ${sample_id}`;
     const trace = {
-      x: sample_values.slice(0, 10),
+      x: sample_values.slice(0, 10).reverse(),
       y: merged_ids_genus.slice(0, 10),
       type: 'bar',
       orientation: 'h',
       title: title,
-      text: sample_otu_labels
+      text: sample_otu_labels.reverse()
     };
     var data = [trace];
     var layout = {
@@ -83,10 +81,56 @@ function buildGraph(sample) {
         t: 100,
         pad: 10}
     };
-
     Plotly.newPlot("plot", data, layout);
   })
   console.log("--- Graph built ---");
+};
+    
+function buildGraph_AllSamples() {
+  d3.json("samples.json").then(data => {
+    console.log(data);
+    const samples = data.samples;
+    console.log(samples);
+    let sample_ids = [];
+    let sample_value_ids_list = [];
+    let sample_values_list = [];
+    samples.forEach((sample, i) => {
+      console.log("--------------");
+      console.log(sample);
+      const sample_id = sample.id;
+      const sample_otu_ids = sample.otu_ids;
+      const sample_values = sample.sample_values;
+      console.log(sample_id);
+      console.log(sample_otu_ids);
+      console.log(sample_values);
+      sample_ids.push(sample_id);
+      sample_value_ids_list.push(sample_otu_ids);
+      sample_values_list.push(sample_values);
+      // console.log(typeof(entry));
+      });
+    const trace = {
+      x: sample_values_list.slice(0, 10).reverse(),
+      y: sample_value_ids_list.slice(0, 10),
+      type: 'bar',
+      orientation: 'h',
+      title: "All Samples - Top 10 Bacteria",
+      text: sample_value_ids_list.slice(0, 10).reverse()
+    };
+    var data = [trace];
+    var layout = {
+      title: "samples",
+      xaxis: { title: "Sample values" },
+      yaxis: merged_ids_genus,
+      width: 600,
+      margin: {
+        l: 250,
+        r: 50,
+        b: 100,
+        t: 100,
+        pad: 10}
+    };
+    Plotly.newPlot("plot", data, layout);
+  })
 };
 
 function optionChanged(sample) {
@@ -95,3 +139,4 @@ function optionChanged(sample) {
 }
 
 init();
+buildGraph_AllSamples();
