@@ -10,6 +10,7 @@ function init() {
           .property("value", item.id);
       });
     const default_names = names[0];
+    console.log("--- Initialized ---");
     buildMetadata(default_names); 
     buildGraph(default_names);
   });
@@ -28,6 +29,7 @@ function buildMetadata(sample) {
         .text(`${key}: ${value}`);
     })
   });
+  console.log("--- Metadata built ---");
 };
 
 function buildGraph(sample) {
@@ -58,20 +60,15 @@ function buildGraph(sample) {
       let merged_item = `${item_ids}: ${item_genus}`;
       merged_ids_genus.push(merged_item);
     });
-    console.log("----------------")
-    console.log(merged_ids_genus);
-    console.log(typeof(merged_ids_genus));
-    console.log(merged_ids_genus.length);
-
-
     
     const title = `Sample id - ${sample_id}`;
     const trace = {
-      x: sample_values.slice(0, 10), //data.samples[0].sample_values, //.map(val => Math.sqrt(val)),
+      x: sample_values.slice(0, 10),
       y: merged_ids_genus.slice(0, 10),
       type: 'bar',
       orientation: 'h',
       title: title,
+      text: sample_otu_labels
     };
     var data = [trace];
     var layout = {
@@ -89,6 +86,7 @@ function buildGraph(sample) {
 
     Plotly.newPlot("plot", data, layout);
   })
+  console.log("--- Graph built ---");
 };
 
 function optionChanged(sample) {
