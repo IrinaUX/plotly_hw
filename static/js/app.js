@@ -1,5 +1,3 @@
-console.log("Hello");
-
 function init() { 
   // const id_list = data.samples;
   var selector = d3.select("#selDataset");
@@ -41,26 +39,36 @@ function buildGraph(sample) {
     const sample_values = sample_data[0].sample_values;
     const sample_otu_ids = sample_data[0].otu_ids;
     const sample_otu_labels = sample_data[0].otu_labels;
-    console.log(sample_otu_labels)
-    console.log(sample_otu_labels.length);
+    // console.log(sample_otu_labels)
+    // console.log(sample_otu_labels.length);
     const newObjList = [];
     for (var i=0; i < sample_otu_labels.length; i++) {
       const string_label = sample_otu_labels[i];
       const split_label_string = string_label.split(";");
       const sliced_string = split_label_string.slice(-1);
-      console.log(typeof(sliced_string));
-      console.log(sliced_string);
-      console.log("------");
       newObjList.push(sliced_string);
     }
     
-    var mergedLabels = [].concat.apply([], newObjList);
-    console.log(mergedLabels);
+    let mergedGenus = [].concat.apply([], newObjList);
+    
+    merged_ids_genus = [];
+    Object.values(sample_otu_ids).forEach((item, i) => {
+      let item_ids = item;
+      let item_genus = mergedGenus[i];
+      let merged_item = `${item_ids}: ${item_genus}`;
+      merged_ids_genus.push(merged_item);
+    });
+    console.log("----------------")
+    console.log(merged_ids_genus);
+    console.log(typeof(merged_ids_genus));
+    console.log(merged_ids_genus.length);
+
+
     
     const title = `Sample id - ${sample_id}`;
     const trace = {
       x: sample_values.slice(0, 10), //data.samples[0].sample_values, //.map(val => Math.sqrt(val)),
-      y: mergedLabels.slice(0, 10),
+      y: merged_ids_genus.slice(0, 10),
       type: 'bar',
       orientation: 'h',
       title: title,
@@ -69,7 +77,7 @@ function buildGraph(sample) {
     var layout = {
       title: title,
       xaxis: { title: "Sample values" },
-      yaxis: sample_otu_ids,
+      yaxis: merged_ids_genus,
       width: 600,
       margin: {
         l: 250,
