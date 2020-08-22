@@ -89,14 +89,15 @@ function buildGraph(sample) {
 
 function buildGraph_AllSamples() {
   otu_ids_list = [];
-  new_otu_arr = "";
-  values_list = [];
+  otu_genus = "";
+  values = "";
   d3.json("samples.json").then(data => {
     const samples = data.samples;
     var otu_ids = samples.map(item => item.otu_ids);
     otu_ids_list.push(otu_ids);
     otu_labels_list = [];
     otu_labels_arr = [];
+    values_list = [];
   
     function extract( array, newarray ){
       if( !newarray ) newarray = [] ;
@@ -106,13 +107,15 @@ function buildGraph_AllSamples() {
       return newarray ;
     }
     var new_ids_arr = extract(otu_ids_list);
-    console.log(new_ids_arr);
+    otu_ids_list = new_ids_arr;
+    // console.log(otu_ids_list);
     // extract sample values
     var sample_values = samples.map(item => item.sample_values);
     values_list.push(sample_values);
     // console.log(sample_values);
     var new_values_arr = extract(values_list);
-    console.log(new_values_arr);
+    values = new_values_arr;
+    // console.log(values);
     // extract labels
     var otu_labels = samples.map(item => item.otu_labels);
     // console.log(otu_labels);
@@ -133,69 +136,76 @@ function buildGraph_AllSamples() {
       // console.log(new_labels_arr);
       otu_labels_arr.push(new_labels_arr)
       var newArr = extract(otu_labels_arr);
-      new_otu_arr = newArr;
-      
-    //   if (item.length = 1) {
-    //     // console.log(bacteria_sample);
-    //     bacteria_sample = item[i];}
-    //   else if (item.length > 1) {
-    //     var bacteria_sample = item[i].split(";");
-    //     // console.log(bacteria_sample)}
-    // };
-    
-    // Loop through array of objects then each object
-    // var cleanArrLabels = samples.map((item, i) => {
-    //   var otu_ids = sample_otu_ids[i];
-    //   return (`${otu_ids}: ${item.split(";").slice(-1)[0]}`);
-    // })
-    // // extract the sample values
-    // var cleanArrValues = sample_values.map((item, i) => {
-    //   var otu_values = sample_values[i];
-    //   return item;
+      otu_genus = newArr;
     })
-    console.log(new_otu_arr);
+    // Create all samples object
+    allSamples_obj = [];
+    for (var i=0; i<otu_ids_list.length; i++) {
+      var id = otu_ids_list[i];
+      var lbl = otu_genus[i];
+      var val = values[i];
+      var id_lbl = `${id}: ${lbl}`
+      allSamples_obj.push({id:id, label: lbl, id_lbl:id_lbl, value: val});
+      // return(id, lbl, id_lbl, val);
+      }
+    console.log(allSamples_obj);
+    var sum = 0;
+    allSamples_obj.forEach((entry, i) => {
+      // console.log("-------------");
+      // console.log(entry);
+      var sum_in = 0;
+      var frequency = {};
+      var id_count = [];
+      var currentID = 0;
+      Object.entries(entry).forEach(([key, value], index) => {
+        // console.log(entry.id);
+        // console.log(entry.value);
+        var id = entry.id;
+        var value = entry.value;
+        if (id in id_count) {
+          // console.log("Id is in the list");
+        }
+        else {
+          // console.log("NOT IN");
+          var id = entry.id;
+          // console.log("------START-------");
+          id_count.push(id);
+          // console.log(id_count);
+          // console.log("------END-------");
+        }
       
-    // });
-
-    // Extract otu_label -> genus
-    // Extract the otu_ids
-    // merge the arrays
-
-    // var cleanArrLabels = sample_otu_labels.map((item, i) => {
-    //   var otu_ids = sample_otu_ids[i];
-    //   return (`${otu_ids}: ${item.split(";").slice(-1)[0]}`);
-    // })
-    // // extract the sample values
-    // var cleanArrValues = sample_values.map((item, i) => {
-    //   var otu_values = sample_values[i];
-    //   return item;
-    // })
-
-  //   const title = `Sample id - ${sample_id}`;
-  //   const trace = {
-  //     x: cleanArrValues.slice(0, 10).reverse(),
-  //     y: cleanArrLabels.slice(0, 10).reverse(),
-  //     type: 'bar',
-  //     orientation: 'h',
-  //     title: title,
-  //     text: cleanArrLabels.reverse()
-  //   };
-  //   var data = [trace];
-  //   var layout = {
-  //     title: title,
-  //     xaxis: { title: "Sample values" },
-  //     yaxis: cleanArrLabels,
-  //     width: 600,
-  //     margin: {
-  //       l: 250,
-  //       r: 50,
-  //       b: 100,
-  //       t: 100,
-  //       pad: 10}
+        // console.log(`Sum in loop = ${sum_in}`);
+      })
+      
+      // console.log(i);
+    })
+    
+    
+    // const title = `Top 10 Bacteria - all samples`;
+    // const trace = {
+    //   x: values.slice(0, 10).reverse(),
+    //   y: new_id_lbl.slice(0, 10).reverse(),
+    //   type: 'bar',
+    //   orientation: 'h',
+    //   title: title,
+    //   text: otu_genus.reverse()
     // };
-  //   Plotly.newPlot("plot-all", data, layout);
+    // var data = [trace];
+    // var layout = {
+    //   title: title,
+    //   xaxis: { title: "Sample values" },
+    //   yaxis: new_id_lbl,
+    //   width: 600,
+    //   margin: {
+    //     l: 250,
+    //     r: 50,
+    //     b: 100,
+    //     t: 100,
+    //     pad: 10}
+    // };
+    // Plotly.newPlot("plot-all", data, layout);
   })
-  // console.log("--- Graph built ---");
+  
 };
 
 function optionChanged(sample) {
