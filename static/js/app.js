@@ -7,12 +7,11 @@ function init() {
         selector
           .append("option")
           .text(item)
-          .property("value", item.id);
       });
     const default_names = names[0];
     // console.log("--- Initialized ---");
-    // buildMetadata(default_names); 
-    // buildGraph(default_names);
+    buildMetadata(default_names); 
+    buildGraph(default_names);
     buildGraph_AllSamples();
   });
 };
@@ -35,7 +34,7 @@ function buildMetadata(sample) {
 
 function buildGraph(sample) {
   d3.json("samples.json").then(data => {
-    const names = data.names;
+    //const names = data.names;
     const samples = data.samples;
     const sample_data = samples.filter(item => item.id == sample);
     
@@ -91,6 +90,7 @@ function buildGraph_AllSamples() {
   otu_ids_list = [];
   otu_genus = "";
   values = "";
+  // id_lbl_combo = "";
   d3.json("samples.json").then(data => {
     const samples = data.samples;
     var otu_ids = samples.map(item => item.otu_ids);
@@ -137,73 +137,139 @@ function buildGraph_AllSamples() {
       otu_labels_arr.push(new_labels_arr)
       var newArr = extract(otu_labels_arr);
       otu_genus = newArr;
-    })
-    // Create all samples object
-    allSamples_obj = [];
-    for (var i=0; i<otu_ids_list.length; i++) {
-      var id = otu_ids_list[i];
-      var lbl = otu_genus[i];
-      var val = values[i];
-      var id_lbl = `${id}: ${lbl}`
-      allSamples_obj.push({id:id, label: lbl, id_lbl:id_lbl, value: val});
-      // return(id, lbl, id_lbl, val);
-      }
-    console.log(allSamples_obj);
-    var sum = 0;
-    allSamples_obj.forEach((entry, i) => {
-      // console.log("-------------");
-      // console.log(entry);
-      var sum_in = 0;
-      var frequency = {};
-      var id_count = [];
-      var currentID = 0;
-      Object.entries(entry).forEach(([key, value], index) => {
-        // console.log(entry.id);
-        // console.log(entry.value);
-        var id = entry.id;
-        var value = entry.value;
-        if (id in id_count) {
-          // console.log("Id is in the list");
-        }
-        else {
-          // console.log("NOT IN");
-          var id = entry.id;
-          // console.log("------START-------");
-          id_count.push(id);
-          // console.log(id_count);
-          // console.log("------END-------");
-        }
-      
-        // console.log(`Sum in loop = ${sum_in}`);
       })
-      
-      // console.log(i);
-    })
-    
-    
-    // const title = `Top 10 Bacteria - all samples`;
-    // const trace = {
-    //   x: values.slice(0, 10).reverse(),
-    //   y: new_id_lbl.slice(0, 10).reverse(),
-    //   type: 'bar',
-    //   orientation: 'h',
-    //   title: title,
-    //   text: otu_genus.reverse()
-    // };
-    // var data = [trace];
-    // var layout = {
-    //   title: title,
-    //   xaxis: { title: "Sample values" },
-    //   yaxis: new_id_lbl,
-    //   width: 600,
-    //   margin: {
-    //     l: 250,
-    //     r: 50,
-    //     b: 100,
-    //     t: 100,
-    //     pad: 10}
-    // };
-    // Plotly.newPlot("plot-all", data, layout);
+      // Create all samples object
+      allSamples_obj = [];
+
+      for (var i=0; i<otu_ids_list.length; i++) {
+        var id = otu_ids_list[i];
+        var lbl = otu_genus[i];
+        var val = values[i];
+        var id_lbl = `${id}: ${lbl}`
+        allSamples_obj.push({id:id, lbl: lbl, id_lbl:id_lbl, value: val});
+        }
+
+        // console.log(allSamples_obj);
+
+        // try to plot from all samples obj
+
+        // const id_lbl = allSamples_obj.map(item => item.id_lbl);
+        // console.log(id_lbl);
+        // const ids_lbls = allSamples_obj.id_lbl;
+
+        // var unique_ids = [];
+        var aggObject = {};
+
+        allSamples_obj.forEach((item) => {
+          // console.log(item);
+          if (aggObject.hasOwnProperty(item.id)) {
+
+            aggObject[item.id] += item.value;
+            // aggObject[item.lbl] = item.lbl;
+            // console.log(item.value);
+            // aggObject[item.id] += item.value;
+            
+
+            // console.log(holdAndAddMyOTUIDs[item.id]);
+            // console.log(item.value);
+            // aggObject[id_lbl] = item.id_lbl;
+            // aggObject[label] = item.label;
+          } else {
+            // console.log(item.value);
+            aggObject[item.id] = item.value;
+            // aggObject[item.lbl] = item.lbl;
+            // console.log(item.lbl);
+            // aggObject[lbl] = item.label;
+            // console.log(item.value);
+            // console.log(item.label);
+            
+            // aggObject[id_lbl] = item.id_lbl;
+            // aggObject[label] = item.label;
+          }
+        })
+
+        // console.log(Object.entries(aggObject));
+        otu_list = [];
+        value_list = [];
+        objectFinal = [];
+
+        var unsortedArrAgg = Object.entries(aggObject).forEach((key, value) => {
+          var otu_id = key[0];
+          var value = key[1];
+          otu_list.push(otu_id);
+          value_list.push(value);
+        });
+        
+        // console.log()
+        for (var i=0; i<value_list.length; i++) {
+          // console.log(otu_list[i]);
+          var id = otu_list[i];
+          // console.log(value_list[i])
+          var val = value_list[i];
+          objectFinal.push({id:id, value: val});
+          }
+         
+          var sortedFinal = objectFinal.sort(function(a, b) {
+            return b.value - a.value;
+          });
+          
+          console.log(sortedFinal);
+          
+          const axisX = sortedFinal.map(item => item.value);
+          const axisY = sortedFinal.map(item => `otu_${item.id}`);
+          console.log(axisX);
+          console.log(axisY);        
+
+        // console.log(typeof(aggObject));
+        // let finalData = []; // This will hold my final Data
+        // for (let Key in aggObject) { 
+        //   // console.log("Key:" + Key);
+        //   finalData.push({ otu_ID: Key,  
+        //                    Key: Key,
+        //                    totalVal: aggObject[Key]});
+        // }
+        // var unsortedArray = finalData.map((item, i) => item.totalVal);
+        // console.log(unsortedArray);
+        // var unsortedArrayAgg = aggObject.values;
+        // console.log(unsortedArrayAgg);
+
+        // var sortedArray = unsortedArray.sort((a, z) => (z - a));
+        // console.log(sortedArray);
+        // var sortedArrayAgg = aggObject.sort((a, z) => (z - a));
+        
+        // const finalY3 = aggObject.map(item => item.);
+        // const finalY2 = finalData.map(item => `otu_${item.otu_ID}`);
+        // const finalY = finalY2;
+        // console.log(finalY);
+  
+  //       // console.log(finalY);
+        // const finalX = sortedArray;
+  //       // console.log(finalX);
+        
+     
+    const title = `Top 10 Bacteria - all samples`;
+    const trace = {
+      x: axisX.slice(0, 10).reverse(), //
+      y: axisY.slice(0, 10).reverse(),
+      type: 'bar',
+      orientation: 'h',
+      title: title,
+      text: axisY
+    };
+    var data = [trace];
+    var layout = {
+      title: title,
+      xaxis: { title: "Sample values - all samples" },
+      yaxis: axisY.slice(0, 10).reverse(),
+      width: 600,
+      margin: {
+        l: 250,
+        r: 50,
+        b: 100,
+        t: 100,
+        pad: 10}
+    };
+    Plotly.newPlot("plot-all", data, layout);
   })
   
 };
@@ -215,3 +281,40 @@ function optionChanged(sample) {
 
 init();
 // buildGraph_AllSamples();
+
+
+    //     for (var i = 0; i < allSamples_obj.length; i++) {
+
+    //     var currentID = allSamples_obj[i].id;
+    //     var sample_value = allSamples_obj[i].value;
+    //     var label = allSamples_obj[i].label;
+    //     var id_lbl = allSamples_obj[i].id_lbl;
+    //     // console.log(sample_value);
+        
+    //     if (currentID in unique_ids) {
+    //       // if current id is in unique ids
+    //       // 
+
+    //       newObject[i].id = currentID;
+    //       newObject[i].value = sample_value;
+    //       newObject[i].label
+    //       console.log("IF condition");
+    //       console.log(currentID);
+    //       }
+    //     else {
+    //       // append id to unique_ids and value from the same object
+    //       // unique_ids.push(currentID);
+    //       console.log("-----");
+    //       console.log("ELSE condition");
+    //       console.log(currentID);
+    //       newObject.push({
+    //         id: currentID,
+    //         label: label,
+    //         id_lbl: id_lbl,
+    //         sample_value: sample_value
+    //       })
+    //       console.log(newObject);
+    //       }
+    //     // console.log(unique_ids);
+    //     }
+    // console.log(i);
