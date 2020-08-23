@@ -96,7 +96,7 @@ function buildBubblePlot(sample) {
   d3.json("samples.json").then(data => {
     const samples = data.samples;
     const sample_data = samples.filter(item => item.id == sample)[0];
-    // console.log(samples);
+    
     // Extract sample id and an object with key values from sample_data
     const id = sample_data.id;
     const selected_data = (({ sample_values, otu_ids, otu_labels }) => ({ sample_values, otu_ids, otu_labels }))(sample_data);
@@ -119,10 +119,8 @@ function buildBubblePlot(sample) {
     var vals = selected_data.sample_values;
     var labels = selected_data.family_labels;
 
-    // Create new array of objects, iterate through list,
-    // combine into new array of objects
+    // Create new array of objects - iterate through list
     arrObj = [];
-
     for (var i=0; i<vals.length; i++) {
       var lbl = labels[i];
       var val = vals[i];
@@ -131,39 +129,73 @@ function buildBubblePlot(sample) {
     
     // Sort the array of object based on the family lables
     var sortedObj = arrObj.sort(function(a,b) {return (a.lbl > b.lbl) ? 1 : ((b.lbl > a.lbl) ? -1 : 0);} );
-    console.log(sortedObj);
 
-      
-    // Group by family label
-    // const groupedByObj = groupBy(selected_data, 'family_labels');
-    // console.log(groupedByObj);
+    // Extract unique families into a list
+    var flags = [], unique_families = [], l = sortedObj.length, i;
+    for( i=0; i<l; i++) {
+        if( flags[sortedObj[i].lbl]) continue;
+        flags[sortedObj[i].lbl] = true;
+        unique_families.push(sortedObj[i].lbl);
+    }
+    // console.log(unique_families);
 
-    // console.log(clean_values);
-    // const title = `Sample id - ${sample_id}`;
-    // const trace = {
-    //   x: cleanArrValues.slice(0, 10).reverse(),
-    //   y: cleanArrLabels.slice(0, 10).reverse(),
-    //   type: 'bar',
-    //   orientation: 'h',
-    //   title: title,
-    //   text: cleanArrLabels.reverse()
-    // };
-    // var data = [trace];
-    // var layout = {
-    //   title: title,
-    //   xaxis: { title: "Sample values" },
-    //   yaxis: cleanArrLabels,
-    //   width: 600,
-    //   margin: {
-    //     l: 250,
-    //     r: 50,
-    //     b: 100,
-    //     t: 100,
-    //     pad: 10}
-    // };
-    // Plotly.newPlot("bubble", data, layout);
+    // Use filter method to sum up the values based on unique families
+    total_values_list = [];
+    for (var i=0; i < unique_families.length; i++) {
+      // console.log(unique_families[i]);
+      const filtered_family_data = sortedObj.filter(item => item.lbl == unique_families[i]);
+      // sum_value = item.value;
+      // console.log(filtered_family_data);
+      total_value = 0;
+      filtered_family_data.forEach(item => {
+        val = item.value;
+        total_value += val;
+      })
+      total_values_list.push(total_value);
+    }
+    // console.log(total_values_list);
+
+    // Combine total values object - note: results object is already sorted by value
+    totalValObj = [];
+    for (var i=0; i<unique_families.length; i++) {
+      var lbl = unique_families[i];
+      var val = total_values_list[i];
+      totalValObj.push({lbl: lbl, value: val});
+    }
+    console.log(totalValObj);
+    
+    // Create the x and y-axis values for plotting
+    const totalX = totalValObj.map(item => item.value);
+    const totalY = totalValObj.map(item => item.lbl);
+    const totalX_bubble_size = totalValObj.map(item => (item.value)/10);
+    
+
+    const title = `Bubble Plot for Selected Sample ID - ${id}`;
+    const trace = {
+      x: totalX,
+      y: totalY,
+      mode: 'markers',
+      marker: {
+        size: totalX_bubble_size
+      },
+      title: title,
+      text: totalY
+    };
+    var data = [trace];
+    var layout = {
+      title: title,
+      xaxis: { title: "Sample values" },
+      yaxis: totalY,
+      width: 600,
+      margin: {
+        l: 250,
+        r: 50,
+        b: 100,
+        t: 100,
+        pad: 10}
+    };
+    Plotly.newPlot("bubble", data, layout);
   })
-  // console.log("--- Graph built ---");
 };
 
 function buildGraph_AllSampleTest() {
@@ -258,6 +290,7 @@ d3.json("samples.json").then(data => {
     var total_ids = [];
     var total_lbls = [];
     var total_vals = [];
+    
     Object.entries(groupedByObj).forEach((entry, i) => {
       var vals = entry[1]; // note: this is a list of values after grouping
       total_value = 0;
@@ -276,6 +309,8 @@ d3.json("samples.json").then(data => {
       // push accumulated values to the list
       total_vals.push(val);
     })
+
+    
     // Create a holder for the Total/final object
     totalAllSamples_obj = [];
     // iterate over id list and push ids, lables, id_lbl and values to the object
