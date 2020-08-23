@@ -232,7 +232,8 @@ function buildGraph_AllSampleTest2() {
   otu_ids_list = [];
   otu_genus = "";
   values = "";
-  // id_lbl_combo = "";
+  
+  // PART I - Read JSON file and create new object with ids and lables lerged
   d3.json("samples.json").then(data => {
     const samples = data.samples;
     var otu_ids = samples.map(item => item.otu_ids);
@@ -240,7 +241,7 @@ function buildGraph_AllSampleTest2() {
     otu_labels_list = [];
     otu_labels_arr = [];
     values_list = [];
-  
+    // Create extract function to flatten the arrays
     function extract( array, newarray ){
       if( !newarray ) newarray = [] ;
       if( array ) for( var i = 0 ; i < array.length ; ++i )
@@ -248,19 +249,16 @@ function buildGraph_AllSampleTest2() {
           else newarray.push( array[i] ) ;}
       return newarray ;
     }
+    // Create extract function to flatten the array
     var new_ids_arr = extract(otu_ids_list);
     otu_ids_list = new_ids_arr;
-    // console.log(otu_ids_list);
-    // extract sample values
     var sample_values = samples.map(item => item.sample_values);
     values_list.push(sample_values);
-    // console.log(sample_values);
+    // Create extract function to flatten the array
     var new_values_arr = extract(values_list);
     values = new_values_arr;
-    // console.log(values);
-    // extract labels
     var otu_labels = samples.map(item => item.otu_labels);
-    // console.log(otu_labels);
+    // Loop through otu lables to extract last value
     otu_labels.forEach((item, i) => {
       // console.log(item);
       let genus_list = [];
@@ -270,7 +268,7 @@ function buildGraph_AllSampleTest2() {
         // console.log(item_genus);
         genus_list.push(item_genus);
       }
-      // console.log(genus_list);
+      // Create extract function to flatten the array
       var new_lables_list = extract(genus_list);
       // console.log(new_lables_list);
       otu_labels_list.push(new_lables_list); 
@@ -280,7 +278,7 @@ function buildGraph_AllSampleTest2() {
       var newArr = extract(otu_labels_arr);
       otu_genus = newArr;
       })
-      // Create all samples object
+      // Create and push the data to the object
       allSamples_obj = [];
 
       for (var i=0; i<otu_ids_list.length; i++) {
@@ -290,7 +288,8 @@ function buildGraph_AllSampleTest2() {
         var id_lbl = `${id}: ${lbl}`
         allSamples_obj.push({id:id, lbl: lbl, id_lbl:id_lbl, value: val});
         }
-        var aggObject = {};
+        
+        // Sort all samples data by otu id
         sum_value = 0;
         arrayLabel = [];
         array_values = [];
@@ -299,10 +298,7 @@ function buildGraph_AllSampleTest2() {
           return b.id - a.id;
         });
         
-        
-        unique_ids = [];
-        
-
+        // PART II - Group the data by otu ids
         const groupBy = (array, key) => {
           // Return the end result
           return array.reduce((result, currentValue) => {
@@ -318,41 +314,32 @@ function buildGraph_AllSampleTest2() {
         // Group by color as key to the person array
         const groupedByObj = groupBy(sortedFinalObjSamples, 'id');
 
-        // va totalObject = ;
-        var objGroupedSamples = [];
+        // PART III - Get values aggregated per otu id
         var total_ids = [];
         var total_lbls = [];
         var total_vals = [];
         Object.entries(groupedByObj).forEach((entry, i) => {
-          var vals = entry[1]; 
+          var vals = entry[1]; // note: this is a list of values after grouping
           console.log(i);
           total_value = 0;
-          objGroupedSamples.id = entry[0];
+          // push ids to the array
           total_ids.push(entry[0]);
-          // console.log(entry[1]);
           var lbl = vals.map(item => item.lbl);
-          // console.log(lbl);
-          objGroupedSamples.lbl = lbl[0];
+          // push labels to the list
           total_lbls.push(lbl[0]);
-          // objGroupedSamples.lbl = entry[2];
-          // console.log(entry[0]);
+          // Loop throught the grouped values to accumulate them
           vals.forEach((item, key) => {
             value = item.value;
             total_value += value;
             return total_value;
           })
           var val = total_value;
+          // push accumulated values to the list
           total_vals.push(val);
-          objGroupedSamples.value = val;
-          // console.log(vals);
-          // console.log(length);
         })
-        // console.log(total_ids);
-        // console.log(total_lbls);
-        // console.log(total_vals);
-        // create new object with aggregated data:
+        // Create a holder for the Total/final object
         totalAllSamples_obj = [];
-
+        // iterate over id list and push ids, lables, id_lbl and values to the object
         for (var i=0; i<total_ids.length; i++) {
           var id = total_ids[i];
           var lbl = total_lbls[i];
@@ -363,110 +350,42 @@ function buildGraph_AllSampleTest2() {
         
         console.log(totalAllSamples_obj);
         
-        // console.log(groupedByObj);
-
-
-
-        // var aggSortedObj = {};
-        // var unique_id_list = [];
-        // var counter = 0; // initialize counter as 0
-        // sortedFinalObjSamples.forEach((item, i) => {
-        //   var currentID = item.id;
-        //   // console.log(currentID);
-        //   // console.log("--------------------------")
-        //   if (currentID in unique_id_list) {
-        //     console.log("IF EXISTS: ****************" + currentID);
-        //     console.log(unique_id_list);
-        //   }
-        //   else {
-        //     unique_id_list.push(currentID);
-        //     // console.log("ELSE: " + currentID);
-        //   }
-        // })
-        // console.log(counter);
-        // console.log(unique_id_list);
-
-        // allSamples_obj.forEach((item) => {
-        //   if (aggObject.hasOwnProperty(item.index)) {
-        //     // if (aggObject.hasOwnProperty(item.lbl)) {
-        //     //   aggObject[item.lbl] = item.lbl;
-        //     //   console.log(item.lbl);
-        //     // }
-        //     aggObject[item.index] += item.value;
-        //     aggObject[item.lbl] += item.lbl;
-        //     console.log(item.lbl);
-            
-            
-        //   } else {
-        //     aggObject[item.id] = item.value;
-        //     aggObject[item.lbl] = item.lbl;
-            
-        //   }
-        // })
-
-        // console.log(aggObject);
-
-        otu_list = [];
-        value_list = [];
-        objectFinal = [];
-
-        var unsortedArrAgg = Object.entries(aggObject).forEach((key, value) => {
-          var otu_id = key[0];
-          var value = key[1];
-          otu_list.push(otu_id);
-          value_list.push(value);
+        // PART IV - Sort the total arrays by values and plot
+        var totalSortedFinal = totalAllSamples_obj.sort(function(a, b) {
+          return b.value - a.value;
         });
         
-        for (var i=0; i<value_list.length; i++) {
-          var id = otu_list[i];
-          var val = value_list[i];
-          objectFinal.push({id:id, value: val});
-          }
-         
-          var sortedFinal = objectFinal.sort(function(a, b) {
-            return b.value - a.value;
-          });
-
-          var totalSortedFinal = totalAllSamples_obj.sort(function(a, b) {
-            return b.value - a.value;
-          });
-          
-          // console.log(sortedFinal);
-          
-          // const axisX = sortedFinal.map(item => item.value);
-          // const axisY = sortedFinal.map(item => `otu_${item.id}`);
-          // console.log(axisX);
-          // console.log(axisY); 
-          const totalX = totalSortedFinal.map(item => item.value);
-          const totalY = totalSortedFinal.map(item => item.id_lbl);
-
-     
-    const title = `Top 10 Bacteria - all samples`;
-    const trace = {
-      x: totalX.slice(0, 10).reverse(), //
-      y: totalY.slice(0, 10).reverse(),
-      type: 'bar',
-      orientation: 'h',
-      title: title,
-      text: totalY.slice(0, 10).reverse()
+        // Create the arrays to plot
+        const totalX = totalSortedFinal.map(item => item.value);
+        const totalY = totalSortedFinal.map(item => item.id_lbl);
+        
+        // Create trace and plot
+        const title = `Top 10 Bacteria - all samples`;
+        const trace = {
+          x: totalX.slice(0, 10).reverse(), //
+          y: totalY.slice(0, 10).reverse(),
+          type: 'bar',
+          orientation: 'h',
+          title: title,
+          text: totalY.slice(0, 10).reverse()
+        };
+        var data = [trace];
+        var layout = {
+          title: title,
+          xaxis: { title: "Sample values - all samples" },
+          yaxis: totalY.slice(0, 10).reverse(),
+          width: 600,
+          margin: {
+            l: 250,
+            r: 50,
+            b: 100,
+            t: 100,
+            pad: 10}
+        };
+        Plotly.newPlot("plot-all", data, layout);
+      })
+      
     };
-    var data = [trace];
-    var layout = {
-      title: title,
-      xaxis: { title: "Sample values - all samples" },
-      yaxis: totalY.slice(0, 10).reverse(),
-      width: 600,
-      margin: {
-        l: 250,
-        r: 50,
-        b: 100,
-        t: 100,
-        pad: 10}
-    };
-    Plotly.newPlot("plot-all", data, layout);
-  })
-  
-};
 
 function optionChanged(sample) {
   buildMetadata(sample);
