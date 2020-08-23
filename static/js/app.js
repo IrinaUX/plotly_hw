@@ -12,8 +12,8 @@ function init() {
       });
     const default_names = names[0];
     // console.log("--- Initialized ---");
-    // buildMetadata(default_names); 
-    // buildGraph(default_names);
+    buildMetadata(default_names); 
+    buildGraph(default_names);
     // buildGraph_AllSamples();
     buildGraph_AllSampleTest2();
   });
