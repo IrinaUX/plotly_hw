@@ -75,7 +75,15 @@ function buildGraph(sample) {
     };
     var data = [trace];
     var layout = {
-      title: title,
+      title: {
+        text: title,
+        font: {
+          size: 12
+        },
+      }, 
+      font: {
+        size: 8,
+      },
       xaxis: { title: "Sample values" },
       yaxis: cleanArrLabels,
       width: 600,
@@ -154,8 +162,6 @@ function buildBubblePlot(sample) {
       total_values_list.push(total_value);
     }
     // console.log(total_values_list);
-
-    // Combine total values object - note: results object is already sorted by value
     totalValObj = [];
     for (var i=0; i<unique_families.length; i++) {
       var lbl = unique_families[i];
@@ -163,32 +169,48 @@ function buildBubblePlot(sample) {
       totalValObj.push({lbl: lbl, value: val});
     }
     console.log(totalValObj);
-    
-    // Create the x and y-axis values for plotting
-    const totalX = totalValObj.map(item => item.value);
-    const totalY = totalValObj.map(item => item.lbl);
-    const totalX_bubble_size = totalValObj.map(item => (item.value)/10);
-    
 
+    // PART IV - Sort the total arrays by values and plot
+    var totalSorted = totalValObj.sort(function(a, b) {
+      return b.value - a.value;
+    });
+    console.log(totalSorted);
+
+    // Create the x and y-axis values for plotting
+    const totalX = totalSorted.map(item => item.value);
+    const totalY = totalSorted.map(item => item.lbl);
+    const totalX_bubble_size = totalSorted.map(item => (item.value)/10);
+    const totalX_size_sqrt = totalSorted.map(item => (Math.sqrt(item.value)));
+
+    // console.log(totalX_size_sqrt);
     const title = `Bubble Plot for Selected Sample ID - ${id}`;
     const trace = {
       x: totalX,
       y: totalY,
       mode: 'markers',
       marker: {
-        size: totalX_bubble_size
-      },
-      title: title,
-      text: totalY
+        size: totalX_size_sqrt
+      }
     };
+
     var data = [trace];
     var layout = {
-      title: title,
+      title: {
+        text: title,
+        font: {
+          size: 12
+        },
+      },  
+      font: {
+        size: 8,
+      },
       xaxis: { title: "Sample values" },
-      yaxis: totalY,
+      yaxis: { 
+        
+      },
       width: 600,
       margin: {
-        l: 250,
+        l: 400,
         r: 50,
         b: 100,
         t: 100,
@@ -345,7 +367,15 @@ d3.json("samples.json").then(data => {
     };
     var data = [trace];
     var layout = {
-      title: title,
+      title: {
+        text: title,
+        font: {
+          size: 12
+        },
+      }, 
+      font: {
+        size: 8,
+      },
       xaxis: { title: "Sample values - all samples" },
       yaxis: totalY.slice(0, 10).reverse(),
       width: 600,
