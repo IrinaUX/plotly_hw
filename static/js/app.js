@@ -35,7 +35,6 @@ function buildMetadata(sample) {
         .attr("style", "font-size:12px;");
     })
   });
-  // console.log("--- Metadata built ---");
 };
 
 function buildGraph(sample) {
@@ -87,10 +86,10 @@ function buildGraph(sample) {
       },
       xaxis: { title: "Sample values" },
       yaxis: cleanArrLabels,
-      width: 600,
+      width: 400,
       margin: {
-        l: 250,
-        r: 50,
+        l: 100,
+        r: 10,
         b: 100,
         t: 100,
         pad: 10}
@@ -206,7 +205,7 @@ function buildBubblePlot(sample) {
         size: 8,
       },
       xaxis: { title: "Sample values" },
-      width: 800,
+      width: 600,
       margin: {
         l: 400,
         r: 50,
@@ -376,9 +375,9 @@ d3.json("samples.json").then(data => {
       },
       xaxis: { title: "Sample values - all samples" },
       yaxis: totalY.slice(0, 10).reverse(),
-      width: 600,
+      width: 400,
       margin: {
-        l: 250,
+        l: 150,
         r: 50,
         b: 100,
         t: 100,
