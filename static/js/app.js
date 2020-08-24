@@ -31,7 +31,8 @@ function buildMetadata(sample) {
     Object.entries(sampleData).forEach(([key, value]) => {
       demoPanel
         .append("p")
-        .text(`${key}: ${value}`);
+        .text(`${key}: ${value}`)
+        .attr("style", "font-size:12px;");
     })
   });
   // console.log("--- Metadata built ---");
@@ -205,10 +206,7 @@ function buildBubblePlot(sample) {
         size: 8,
       },
       xaxis: { title: "Sample values" },
-      yaxis: { 
-        
-      },
-      width: 600,
+      width: 800,
       margin: {
         l: 400,
         r: 50,
